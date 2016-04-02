@@ -1,0 +1,17 @@
+#!/bin/sh
+
+BACKUP_PATH="<%= @path %>"
+BACKUP_DAYS=<%= [0, @days - 2].max %>
+DATE=`date +%Y-%m-%d`
+
+mkdir -p $BACKUP_PATH
+
+echo -n "Removing backups older than $BACKUP_DAYS day(s)..."
+find "$BACKUP_PATH" -type f -mtime +$BACKUP_DAYS -exec echo "- {}" \; -exec rm {} \;
+echo "done."
+
+echo -n "Dumping the fliptu database..."
+BACKUP_FILE="${BACKUP_PATH}/fliptu-${DATE}.dump"
+su - postgres -c "pg_dump -Fc --no-acl --no-owner fliptu" > $BACKUP_FILE
+BACKUP_SIZE=`du -h "$BACKUP_FILE" | awk -F" " '{print $1}'`
+echo " done. $BACKUP_FILE ($BACKUP_SIZE)"

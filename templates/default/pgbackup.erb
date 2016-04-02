@@ -1,0 +1,12 @@
+#!/bin/sh
+
+BACKUP_PATH="<%= @path %>"
+TIME=`date +%Y-%m-%d-%H%M%S`
+
+mkdir -p $BACKUP_PATH
+
+echo -n "Dumping the fliptu database..."
+BACKUP_FILE="${BACKUP_PATH}/fliptu-${TIME}.dump"
+su - postgres -c "pg_dump -Fc --no-acl --no-owner fliptu" > $BACKUP_FILE
+BACKUP_SIZE=`du -h "$BACKUP_FILE" | awk -F" " '{print $1}'`
+echo " done. $BACKUP_FILE ($BACKUP_SIZE)"
